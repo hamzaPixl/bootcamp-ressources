@@ -1,0 +1,152 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "id": "scrape-website",
+      "name": "Scrape Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [580, 240],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a web scraping expert. Your task is to analyze and structure the HTML content of a webpage for SEO analysis.\n\nYour responsibilities:\n1. Extract and structure the main content\n2. Identify and label key HTML elements (title, meta descriptions, headings, etc)\n3. Create metadata including:\n   - URL\n   - Timestamp of scraping\n   - Page title\n   - Meta descriptions\n   - Main content sections\n   - Navigation structure\n   - Image alt texts\n   - Internal/external links\n\nFormat the output as a well-structured JSON document that will be used for vector embedding and SEO analysis.\n\nHere is the webpage content to analyze: {{ $json.data }}",
+        "options": {}
+      },
+      "id": "scraper-agent",
+      "name": "Scraper Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [780, 240],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "id": "scraper-model",
+      "name": "Scraper OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [680, 240],
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "9cLeCDuOKKvcBdr5",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [680, 360],
+      "id": "scraper-memory",
+      "name": "Scraper Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [880, 360],
+      "id": "embeddings",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "9cLeCDuOKKvcBdr5",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "store",
+        "mongoCollection": {
+          "__rl": true,
+          "mode": "list",
+          "value": "seo_pages"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreMongoDBAtlas",
+      "typeVersion": 1.1,
+      "position": [980, 240],
+      "id": "vector-store",
+      "name": "MongoDB Atlas Vector Store"
+    }
+  ],
+  "connections": {
+    "Scrape Website": {
+      "main": [
+        [
+          {
+            "node": "Scraper Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scraper Agent": {
+      "main": [
+        [
+          {
+            "node": "MongoDB Atlas Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scraper OpenAI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Scraper Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scraper Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Scraper Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "MongoDB Atlas Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "instanceId": "scraper-workflow"
+  }
+}

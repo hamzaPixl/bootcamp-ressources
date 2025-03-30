@@ -1,0 +1,188 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Conversion Rate Optimizer",
+        "formDescription": "Your Landing Page is Leaking Sales—Fix It Now",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Landing Page Url",
+              "placeholder": "https://www.pixldev.be/",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "form-trigger",
+      "name": "Landing Page Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [380, 240],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "scraper-workflow",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "id": "scraper-workflow",
+      "name": "Execute Scraper Workflow",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [580, 240],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "technical-audit-workflow",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "id": "technical-workflow",
+      "name": "Execute Technical Audit",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [780, 140],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "content-audit-workflow",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "id": "content-workflow",
+      "name": "Execute Content Audit",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [780, 340],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "merge",
+      "name": "Merge Results",
+      "type": "n8n-nodes-base.merge",
+      "position": [980, 240],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "=# SEO Audit Report for {{ $('Landing Page Form').item.json['Landing Page Url'] }}\n\n## Technical SEO Audit\n{{ $json.technical }}\n\n## Content SEO Audit\n{{ $json.content }}",
+        "options": {}
+      },
+      "id": "markdown",
+      "name": "Format Report",
+      "type": "n8n-nodes-base.markdown",
+      "position": [1180, 240],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "sendTo": "hamza@pixldev.be",
+        "subject": "=SEO Audit Report - {{ $('Landing Page Form').item.json['Landing Page Url'] }}",
+        "message": "={{ $json.data }}",
+        "options": {}
+      },
+      "id": "email",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [1380, 240],
+      "typeVersion": 2.1,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "vWVjcbPKp0hsWXZE",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Landing Page Form": {
+      "main": [
+        [
+          {
+            "node": "Execute Scraper Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Scraper Workflow": {
+      "main": [
+        [
+          {
+            "node": "Execute Technical Audit",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Execute Content Audit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Technical Audit": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Content Audit": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Results": {
+      "main": [
+        [
+          {
+            "node": "Format Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Report": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "instanceId": "main-workflow"
+  }
+}

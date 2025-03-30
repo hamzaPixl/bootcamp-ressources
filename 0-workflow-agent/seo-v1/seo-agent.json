@@ -1,0 +1,447 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Conversion Rate Optimizer",
+        "formDescription": "Your Landing Page is Leaking Sales—Fix It Now",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Landing Page Url",
+              "placeholder": "https://www.pixldev.be/",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f4a971be-a961-4ad6-b38d-830c5fca5407",
+      "name": "Landing Page Url",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [380, 240],
+      "webhookId": "afe067a5-4878-4c9d-b746-691f77190f54",
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "url": "={{ $json['Landing Page Url'] }}",
+        "options": {}
+      },
+      "id": "e280139f-94b8-49dc-91e7-c6ffa0c04716",
+      "name": "Scrape Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [580, 240],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "id": "de9ff0da-4ef9-4878-af0d-5733e010402c",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [880, 260],
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "9cLeCDuOKKvcBdr5",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "id": "25969781-4b1c-42ad-969c-efbb605be9e5",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [860, 1220],
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "Y2Ouea03EMlBkNlc",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are the best SEO Manager in the country—a world-class expert in optimizing websites to rank on Google.\n\nIn this task, you will analyze the content of the webpage and perform a detailed and structured SEO Content Audit.\n\nAudit Structure\nYou will divide your audit in 2 parts:\n- The first part is the Analysis\n- The second is the Recommendations\n\nIn the Analysis, you will include:\n- Content Quality Assessment – Evaluate the content's overall quality, accuracy, and relevance to the target audience.\n- Keyword Research and Analysis – Identify primary and secondary keywords, keyword density, and keyword placement strategies.\n- Readability Analysis – Assess the content's readability score using metrics such as Flesch-Kincaid Grade Level, Flesch Reading Ease, and Gunning-Fog Index.\n\nIn the Recommendations, you will present your recommendations and actionable suggestions in clear, organized bullet points. Recommendations must improve the rankings in Google but also the user engagement. \n\nEnsure the output is properly formatted, clean, and highly readable. Do not include any introductory or explanatory text—only the audit findings.\n\nHere is the content of my landing page: {{ $json.data }}",
+        "options": {}
+      },
+      "id": "0f135a2d-156c-43ee-b254-581c7d543a8c",
+      "name": "Content Audit",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [940, 920],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are the best SEO Manager in the country—a world-class expert in optimizing websites to rank on Google.\nIn this task, you will analyze the HTML code of a webpage and perform a detailed and structured On-Page Technical SEO Audit.\n\nAudit Structure\nYou will review all technical SEO aspects of the page. Once completed, you will present your findings and recommendations in clear, organized bullet points, categorized into three sections:\n- Critical Issues – Must be fixed immediately.\n- Quick Wins – Easy fixes with a big impact.\n- Opportunities for Improvement – Require more effort but offer potential benefits.\n\nEnsure the output is properly formatted, clean, and highly readable. Do not include any introductory or explanatory text—only the audit findings.\n\nHere is the content of my landing page: {{ $json.data }}",
+        "options": {}
+      },
+      "id": "b693e35c-c0d4-4202-8c5e-2a5646a16cc4",
+      "name": "Technical Audit",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [940, 40],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {},
+      "id": "3d172f93-7d94-4a43-9403-5cec799bbe47",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [1720, 420],
+      "typeVersion": 3,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "output"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2081bf62-0e47-497e-8a3e-d30d330f6a9d",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [2000, 440],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "=# On-Page Technical Audit\n{{ $json.output[0] }}\n\n# On-Page SEO Content Audit\n{{ $json.output[1] }}",
+        "options": {}
+      },
+      "id": "e1cfc16e-e0dc-4298-9b94-ffb7f23b45aa",
+      "name": "Markdown",
+      "type": "n8n-nodes-base.markdown",
+      "position": [2260, 460],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "sendTo": "hamza@pixldev.be",
+        "subject": "=On-Page SEO Audit -  {{ $('Landing Page Url').item.json['Landing Page Url'] }}",
+        "message": "={{ $json.data }}",
+        "options": {}
+      },
+      "id": "3242a0c3-4439-4ad1-8185-47185046080d",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [2620, 440],
+      "webhookId": "2979e4dc-1689-447e-8cd4-eb907b4eedf4",
+      "typeVersion": 2.1,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "vWVjcbPKp0hsWXZE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [1040, 260],
+      "id": "fea9a9da-da94-43d6-a467-6ccc046b9765",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [1120, 1340],
+      "id": "a47f6414-c939-4aab-95ad-5f122a321a2f",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "mongoCollection": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreMongoDBAtlas",
+      "typeVersion": 1.1,
+      "position": [1180, 280],
+      "id": "69dd66c9-eaa2-490e-989a-93f4933eb09e",
+      "name": "MongoDB Atlas Vector Store"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [1200, 500],
+      "id": "36efe76b-63f2-43f4-82e4-f752ce85831e",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "9cLeCDuOKKvcBdr5",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a web scraping expert. Your task is to analyze and structure the HTML content of a webpage for SEO analysis.\n\nYour responsibilities:\n1. Extract and structure the main content\n2. Identify and label key HTML elements (title, meta descriptions, headings, etc)\n3. Create metadata including:\n   - URL\n   - Timestamp of scraping\n   - Page title\n   - Meta descriptions\n   - Main content sections\n   - Navigation structure\n   - Image alt texts\n   - Internal/external links\n\nFormat the output as a well-structured JSON document that will be used for vector embedding and SEO analysis.\n\nHere is the webpage content to analyze: {{ $json.data }}",
+        "options": {}
+      },
+      "id": "scraper-agent-node",
+      "name": "Scraper Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [780, 240],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [680, 360],
+      "id": "scraper-memory-node",
+      "name": "Scraper Memory"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "id": "scraper-model-node",
+      "name": "Scraper OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [680, 240],
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "9cLeCDuOKKvcBdr5",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Landing Page Url": {
+      "main": [
+        [
+          {
+            "node": "Scrape Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Website": {
+      "main": [
+        [
+          {
+            "node": "Scraper Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scraper Agent": {
+      "main": [
+        [
+          {
+            "node": "Content Audit",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Technical Audit",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MongoDB Atlas Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scraper Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Scraper Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Technical Audit",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Content Audit",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Audit": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Technical Audit": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Technical Audit",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Content Audit",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB Atlas Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "Technical Audit",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "MongoDB Atlas Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scraper OpenAI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Scraper Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateId": "3224",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e9b2ddebcb254320d1f4e858d9c90abf2aa9945a6513c837362762c4d784e24b"
+  }
+}
