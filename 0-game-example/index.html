@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chicken Road Crossing</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+  </head>
+  <body>
+    <div class="game-container">
+      <div class="score-display">
+        <div class="eggs-remaining">
+          Eggs: <span id="eggs-remaining">3</span>
+        </div>
+        <div class="score">Score: <span id="score">0</span></div>
+      </div>
+      <div id="game-canvas"></div>
+      <div class="controls">
+        <div id="game-status">Get ready!</div>
+        <button id="start-btn">Start Game</button>
+        <button id="reset-btn">Reset Game</button>
+      </div>
+    </div>
+    <script src="game.js"></script>
+  </body>
+</html>
