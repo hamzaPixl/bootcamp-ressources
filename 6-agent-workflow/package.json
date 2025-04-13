@@ -1,0 +1,16 @@
+{
+  "name": "examples-using-a-tool",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "pnpx tsx index.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "latest",
+    "@mastra/core": "^0.8.2",
+    "dotenv": "^16.5.0",
+    "zod": "^3.24.2"
+  },
+  "version": "0.0.1",
+  "packageManager": "pnpm@8.15.4+sha1.c85a4305534f76d461407b59277b954bac97b5c4"
+}
